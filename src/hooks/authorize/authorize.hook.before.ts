@@ -30,6 +30,7 @@ import type { HookContext } from "@feathersjs/feathers";
 
 import type { AuthorizeHookOptions } from "../../types";
 import { getMethodName } from "../../utils/getMethodName";
+import type { Id } from "objection";
 
 export const authorizeBefore = async <H extends HookContext = HookContext>(
   context: H,
@@ -115,7 +116,7 @@ export const authorizeBefore = async <H extends HookContext = HookContext>(
       checkCreateForData: true,
     });
   } else if (context.data) {
-    checkData(context, ability, modelName, { ...context.data }, options);
+    checkData(context, ability, modelName, id, { ...context.data }, options);
   }
 
   return context;
@@ -187,19 +188,11 @@ const handleSingle = async <H extends HookContext = HookContext>(
       throw new Forbidden("You're not allowed to make this request");
     }
 
-    let data = !restrictingFields
+    const data = !restrictingFields
       ? context.data
       : _pick(context.data, restrictingFields as string[]);
 
-    if (!_isEmpty(data)) {
-      const idField =
-        typeof options.idField === "function"
-          ? options.idField(context)
-          : options.idField;
-      data = { ...data, [idField]: id };
-    }
-
-    checkData(context, ability, modelName, data, options);
+    checkData(context, ability, modelName, id, data, options);
 
     if (!restrictingFields) {
       return context;
@@ -231,6 +224,7 @@ const checkData = <H extends HookContext = HookContext>(
   context: H,
   ability: AnyAbility,
   modelName: string,
+  id: Id | undefined,
   data: Record<string, unknown>,
   options: Pick<
     AuthorizeHookOptions,
@@ -245,6 +239,17 @@ const checkData = <H extends HookContext = HookContext>(
     !ability.possibleRulesFor(method, modelName).length
   ) {
     return;
+  }
+
+  if (!_isEmpty(data)) {
+    const idField =
+      typeof options.idField === "function"
+        ? options.idField(context)
+        : options.idField;
+    data = {
+      ...data,
+      [idField]: id,
+    };
   }
 
   throwUnlessCan(ability, method, subject(modelName, data), modelName, options);
