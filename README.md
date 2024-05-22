@@ -7,3 +7,5 @@ This is a fork of [feathers-casl](https://www.npmjs.com/package/feathers-casl) p
 ## License
 
 Licensed under the [MIT license](LICENSE).
+
+<a href="https://www.netlify.com"> <img src="https://www.netlify.com/v3/img/components/netlify-color-accent.svg" alt="Deploys by Netlify" /> </a>
