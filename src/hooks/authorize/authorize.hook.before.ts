@@ -187,17 +187,19 @@ const handleSingle = async <H extends HookContext = HookContext>(
       throw new Forbidden("You're not allowed to make this request");
     }
 
-    const data = !restrictingFields
+    let data = !restrictingFields
       ? context.data
       : _pick(context.data, restrictingFields as string[]);
 
-    checkData(
-      context,
-      ability,
-      modelName,
-      _isEmpty(data) ? data : { ...data, [options.idField]: id },
-      options
-    );
+    if (!_isEmpty(data)) {
+      const idField =
+        typeof options.idField === "function"
+          ? options.idField(context)
+          : options.idField;
+      data = { ...data, [idField]: id };
+    }
+
+    checkData(context, ability, modelName, data, options);
 
     if (!restrictingFields) {
       return context;

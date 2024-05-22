@@ -45,15 +45,14 @@ export const makeOptions = <A extends Application = Application>(
 };
 
 const defaultOptions: AuthorizeHookOptionsExclusive<HookContext> = {
-  adapter: undefined,
-  availableFields: (context): string[] => {
+  adapter: "@feathersjs/knex",
+  availableFields: (context): string[] | undefined => {
     const availableFields: string[] | ((context: HookContext) => string[]) =
       context.service.options?.casl?.availableFields;
     return getAvailableFields(context, { availableFields });
   },
   checkRequestData: false,
-  checkRequestDataSameRules: false,
-  idField: "_id",
+  idField: (ctx) => ctx.service.options?.id || "_id",
 };
 
 export const makeDefaultOptions = (

@@ -73,7 +73,7 @@ export interface AuthorizeHookOptions<H extends HookContext = HookContext>
     AuthorizeChannelCommonsOptions<H> {
   adapter: Adapter;
   checkRequestData: boolean;
-  idField: string;
+  idField: string | ((ctx: H) => string);
 }
 
 export type AuthorizeHookOptionsExclusive<H extends HookContext = HookContext> =
