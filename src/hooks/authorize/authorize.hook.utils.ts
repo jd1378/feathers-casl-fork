@@ -175,7 +175,7 @@ export const refetchItems = async (
 };
 
 export const getConditionalSelect = (
-  $select: string[],
+  $select: string[] | undefined,
   ability: AnyAbility,
   method: string,
   modelName: string

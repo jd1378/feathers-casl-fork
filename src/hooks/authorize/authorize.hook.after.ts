@@ -1,7 +1,19 @@
 import { replaceItems } from "feathers-hooks-common";
+import type { HookContext } from "@feathersjs/feathers";
 import { subject } from "@casl/ability";
 import _pick from "lodash/pick.js";
 import _isEmpty from "lodash/isEmpty.js";
+
+const actOnDispatch = <H extends HookContext = HookContext>(
+  context: H,
+  action: () => void
+) => {
+  const currActOn = context.params._actOn;
+  context.params._actOn = "dispatch";
+  action();
+  context.params._actOn = currActOn;
+  return context;
+};
 
 import { shouldSkip, mergeArrays, getItemsIsArray } from "feathers-utils";
 
@@ -22,7 +34,6 @@ import {
 
 import { Forbidden } from "@feathersjs/errors";
 
-import type { HookContext } from "@feathersjs/feathers";
 import type {
   AuthorizeHookOptions,
   HasRestrictingFieldsOptions,
@@ -108,7 +119,7 @@ export const authorizeAfter = async <H extends HookContext = HookContext>(
       return undefined;
     }
 
-    let fields = hasRestrictingFields(
+    let fields: string[] | undefined | boolean = hasRestrictingFields(
       ability,
       getOrFind,
       subject(modelName, item),
@@ -124,7 +135,7 @@ export const authorizeAfter = async <H extends HookContext = HookContext>(
     } else if (fields && $select) {
       fields = mergeArrays(fields, $select, "intersect") as string[];
     } else {
-      fields = fields ? fields : $select;
+      fields = fields ? fields : $select || [];
     }
 
     return _pick(item, fields);
@@ -148,6 +159,9 @@ export const authorizeAfter = async <H extends HookContext = HookContext>(
     }
   }
 
+  if (context.dispatch) {
+    actOnDispatch(context, () => replaceItems(context, result));
+  }
   replaceItems(context, result);
 
   return context;
