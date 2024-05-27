@@ -53,6 +53,7 @@ export const authorizeBefore = async <H extends HookContext = HookContext>(
       modelName: options.modelName,
       storeAbilityForAuthorize: true,
       method,
+      idField: options.idField,
     });
     await basicCheck(context);
   }
