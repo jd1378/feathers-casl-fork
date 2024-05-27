@@ -249,7 +249,7 @@ const checkData = <H extends HookContext = HookContext>(
         : options.idField;
     data = {
       ...data,
-      [idField]: id,
+      [idField]: data[idField] || id,
     };
   }
 
