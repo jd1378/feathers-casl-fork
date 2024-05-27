@@ -14,10 +14,12 @@ import type {
   CheckBasicPermissionHookOptionsExclusive,
 } from "../types";
 import { getMethodName } from "./getMethodName";
+import { subject } from "@casl/ability";
 
 const defaultOptions: CheckBasicPermissionHookOptionsExclusive = {
   checkCreateForData: false,
   storeAbilityForAuthorize: false,
+  idField: "id",
 };
 
 const makeOptions = (
@@ -63,7 +65,18 @@ export const checkBasicPermissionUtil = async <H extends HookContext>(
     checkMulti(context, ability, modelName, options);
   }
 
-  throwUnlessCan(ability, method, modelName, modelName, options);
+  const idField =
+    typeof options.idField === "function"
+      ? options.idField(context)
+      : options.idField;
+
+  throwUnlessCan(
+    ability,
+    method,
+    context.id ? subject(modelName, { [idField]: context.id }) : modelName,
+    modelName,
+    options
+  );
 
   checkCreatePerItem(context, ability, modelName, options);
 

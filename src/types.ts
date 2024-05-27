@@ -44,6 +44,7 @@ export interface CheckBasicPermissionHookOptions<
 > extends HookBaseOptions<H> {
   checkCreateForData: boolean | ((context: H) => boolean);
   storeAbilityForAuthorize: boolean;
+  idField: string | ((ctx: H) => string);
 }
 
 export type CheckBasicPermissionUtilsOptions<
