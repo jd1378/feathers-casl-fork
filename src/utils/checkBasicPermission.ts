@@ -8,16 +8,19 @@ import {
 import { checkCreatePerItem, makeDefaultBaseOptions } from "../hooks/common";
 
 import type { HookContext } from "@feathersjs/feathers";
+import _isEmpty from "lodash/isEmpty.js";
 
 import type {
   CheckBasicPermissionUtilsOptions,
   CheckBasicPermissionHookOptionsExclusive,
 } from "../types";
 import { getMethodName } from "./getMethodName";
+import { subject } from "@casl/ability";
 
 const defaultOptions: CheckBasicPermissionHookOptionsExclusive = {
   checkCreateForData: false,
   storeAbilityForAuthorize: false,
+  idField: "id",
 };
 
 const makeOptions = (
@@ -63,7 +66,23 @@ export const checkBasicPermissionUtil = async <H extends HookContext>(
     checkMulti(context, ability, modelName, options);
   }
 
-  throwUnlessCan(ability, method, modelName, modelName, options);
+  const idField =
+    typeof options.idField === "function"
+      ? options.idField(context)
+      : options.idField;
+
+  let obj;
+  if (context.id) {
+    obj = subject(modelName, { [idField]: context.id });
+  } else if (!_isEmpty(context.params?.query)) {
+    obj = subject(modelName, context.params.query);
+  } else if (context.data) {
+    obj = subject(modelName, context.data);
+  } else {
+    obj = modelName;
+  }
+
+  throwUnlessCan(ability, method, obj, modelName, options);
 
   checkCreatePerItem(context, ability, modelName, options);
 

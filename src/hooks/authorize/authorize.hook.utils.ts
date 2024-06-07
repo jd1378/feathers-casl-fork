@@ -45,14 +45,14 @@ export const makeOptions = <A extends Application = Application>(
 };
 
 const defaultOptions: AuthorizeHookOptionsExclusive<HookContext> = {
-  adapter: undefined,
-  availableFields: (context): string[] => {
+  adapter: "@feathersjs/knex",
+  availableFields: (context): string[] | undefined => {
     const availableFields: string[] | ((context: HookContext) => string[]) =
       context.service.options?.casl?.availableFields;
     return getAvailableFields(context, { availableFields });
   },
-  usePatchData: false,
-  useUpdateData: false,
+  checkRequestData: false,
+  idField: (ctx) => ctx.service.options?.id || "_id",
 };
 
 export const makeDefaultOptions = (
@@ -175,7 +175,7 @@ export const refetchItems = async (
 };
 
 export const getConditionalSelect = (
-  $select: string[],
+  $select: string[] | undefined,
   ability: AnyAbility,
   method: string,
   modelName: string

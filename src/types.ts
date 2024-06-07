@@ -44,6 +44,7 @@ export interface CheckBasicPermissionHookOptions<
 > extends HookBaseOptions<H> {
   checkCreateForData: boolean | ((context: H) => boolean);
   storeAbilityForAuthorize: boolean;
+  idField: string | ((ctx: H) => string);
 }
 
 export type CheckBasicPermissionUtilsOptions<
@@ -72,8 +73,8 @@ export interface AuthorizeHookOptions<H extends HookContext = HookContext>
   extends HookBaseOptions<H>,
     AuthorizeChannelCommonsOptions<H> {
   adapter: Adapter;
-  useUpdateData: boolean;
-  usePatchData: boolean;
+  checkRequestData: boolean;
+  idField: string | ((ctx: H) => string);
 }
 
 export type AuthorizeHookOptionsExclusive<H extends HookContext = HookContext> =
